@@ -16,7 +16,6 @@ const getElement = async (url) => {
 }
 
 const parseBody = (res) => Buffer.from(res.body, 'base64')
-
 const fetchDirName = async () => {
     const $ = await getElement('https://digimonmeta.com/wp-content/gallery/')
     const table = $('table')
@@ -35,7 +34,6 @@ const fetchDirName = async () => {
 
     return dirList
 }
-
 const fetch =  async () =>  {
     const dirList = await fetchDirName()
     existingAndMkDir('image')

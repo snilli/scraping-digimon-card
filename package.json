@@ -1,0 +1,10 @@
+{
+  "name": "digimon_card",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.5",
+    "phin": "^3.5.1"
+  }
+}

@@ -9,12 +9,16 @@ const writeFile = (fileName, image) => fs.writeFileSync(path.join(__dirname, fil
 const existingAndMkDir = (dirName) => !existingFile(dirName) && mkDir(dirName)
 const existingAndWriteFile = (dirName, image) => !existingFile(dirName) && writeFile(dirName, image)
 
+const getElement = async (url) => {
+    const res = await phin(url);
+    const html = parseBody(res);
+    return cheerio.load(html)
+}
+
 const parseBody = (res) => Buffer.from(res.body, 'base64')
 
 const fetchDirName = async () => {
-    const resPage = await phin(`https://digimonmeta.com/wp-content/gallery/`);
-    const body = parseBody(resPage);
-    const $ = cheerio.load(body);
+    const $ = await getElement('https://digimonmeta.com/wp-content/gallery/')
     const table = $('table')
     const dirList = []
     table.find('tr').each((i, el) => {
@@ -39,17 +43,16 @@ const fetch =  async () =>  {
         existingAndMkDir(path.join('image', dir))
         console.log(`create dir ${dir}`)
 
-        const resPage = await phin(`https://digimonmeta.com/wp-content/gallery/${dir}/`);
-        console.log(`fetch ${dir}`)
-
-        const body = parseBody(resPage);
-        const $ = cheerio.load(body);
+        const $ = await getElement(`https://digimonmeta.com/wp-content/gallery/${dir}/`)
         const table = $('table')
+        console.log(`fetch ${dir}`)
         const getImageList = []
         table.find('tr').each((i, el) => {
-            const [cardName] = $(el).text().split( ' ')
+            const rawCardName = $(el).text().split( ' ')
+            const cardName = rawCardName[0].trim()
             const foundCard = cardName.toLowerCase().match(/(jpg)$/g);
-            if (foundCard) {
+
+            if (foundCard && !existingFile(path.join('image', dir, cardName))) {
                 const resPic = phin(`https://digimonmeta.com/wp-content/gallery/${dir}/${cardName.trim()}`);
                 getImageList.push(resPic)
             }
